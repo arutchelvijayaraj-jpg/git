@@ -1,4 +1,4 @@
-STEP-1
+**STEP-1**
 **You do this**:
 Login AWS
 EC2 → Launch Instance
@@ -9,14 +9,14 @@ Create key pair
 Allow SSH + HTTP
 Click Launch
 
-STEP-2
+**STEP-2**
 What they did:
 EC2 → Connect → EC2 Instance Connect
 **Then run:**
 sudo su
 apt update
 
-STEP-3
+**STEP-3**
 
 **Install Docker**
 apt install docker.io -y
@@ -39,8 +39,9 @@ sudo ./aws/install
 apt install curl -y
 curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
 install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+kubectl version --client
 
-STEP-5
+**STEP-4**
 
 **What they did:**
 IAM → Roles → Create Role
@@ -48,14 +49,14 @@ Select EC2
 Attach AdministratorAccess policy
 Create role
 
-STEP-6
+**STEP-5**
 
 EC2 → Select Instance
 Actions → Security → Modify IAM Role
 Select created role
 Update
 
-STEP-7
+**STEP-6**
 
 **Clone GitHub Repo**
 mkdir supermario
@@ -65,13 +66,13 @@ cd supermario-game
 cd EKS-TF
 ls
 
-STEP-8
+**STEP-7**
 
 **Create S3 Bucket** 
 AWS → S3 → Create Bucket
 Give unique name
 
-STEP-9
+**STEP-8**
 vim backend.tf
 inside that we have to change the bucket name and region
 vim main.tf
@@ -79,7 +80,7 @@ change the instance type to c7i-flex.large
 vim provider.tf
 change the region to ap-south-1
 
-STEP-10
+**STEP-9**
 
 **Run Terraform**
 terraform init
@@ -89,7 +90,7 @@ terraform apply --auto-approve
 
 (cluster and node will be created)
 
-STEP-11
+**STEP-10**
 
 **Update Kubeconfig**
 aws eks update-kubeconfig --name EKS_CLOUD --region ap-south-1
@@ -100,13 +101,15 @@ kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
 kubectl get all
 
-STEP-12
+**STEP-11**
 **Get Load Balancer URL**
 kubectl describe service mario-service
 
 at last copy the load balencer url and paste in the browser
 
 http://<loard balencer url>
+
+terraform destroy --auto-approve
 
 
 
