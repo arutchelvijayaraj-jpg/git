@@ -323,5 +323,5 @@ kubectl expose svc monitoring-kube-prometheus-prometheus \
 --target-port=9090
 
 
-
+kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode
 
