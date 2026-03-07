@@ -112,7 +112,209 @@ at last copy the load balencer url and paste in the browser
 
 http://<loard balencer url>
 
-terraform destroy --auto-approve
+
+QUESTION 2 – PROMETHEUS + GRAFANA (FROM SCRATCH)
+
+We will do everything inside the same EC2 instance where kubectl is installed.
+
+STEP 1 — Create Monitoring Namespace
+
+Run:
+
+kubectl create namespace monitoring
+
+Check:
+
+kubectl get ns
+
+You should see
+
+monitoring
+default
+kube-system
+STEP 2 — Install HELM
+
+Prometheus and Grafana will be installed using Helm.
+
+Run:
+
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+Check version:
+
+helm version
+STEP 3 — Add Prometheus Helm Repo
+
+Run:
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+Update repo
+
+helm repo update
+STEP 4 — Install Prometheus + Grafana
+
+Run:
+
+helm install monitoring prometheus-community/kube-prometheus-stack \
+--namespace monitoring
+
+This installs:
+
+Prometheus
+
+Grafana
+
+Alertmanager
+
+Node Exporter
+
+Wait 2 minutes.
+
+Check pods:
+
+kubectl get pods -n monitoring
+
+You should see pods like:
+
+prometheus
+grafana
+alertmanager
+node-exporter
+kube-state-metrics
+STEP 5 — Expose Grafana
+
+Check services:
+
+kubectl get svc -n monitoring
+
+Find:
+
+monitoring-grafana
+
+Edit service:
+
+kubectl edit svc monitoring-grafana -n monitoring
+
+Change:
+
+ClusterIP
+
+to
+
+NodePort
+
+Save and exit.
+
+STEP 6 — Get Grafana Port
+
+Run:
+
+kubectl get svc -n monitoring
+
+Example output:
+
+monitoring-grafana   NodePort   3000:32000
+
+Here
+
+NodePort = 32000
+STEP 7 — Open Security Group Port
+
+Go to AWS
+
+EC2 → Security Group → Edit inbound rules
+
+Add:
+
+Custom TCP
+Port: 32000
+Source: Anywhere
+
+Save.
+
+STEP 8 — Access Grafana
+
+Open browser:
+
+http://<EC2-PUBLIC-IP>:32000
+
+Example:
+
+http://13.234.xx.xx:32000
+STEP 9 — Get Grafana Password
+
+Run:
+
+kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode
+
+Login credentials:
+
+Username: admin
+Password: <above command output>
+STEP 10 — Connect Prometheus to Grafana
+
+Inside Grafana UI:
+
+Settings
+ → Data Sources
+ → Add Data Source
+ → Prometheus
+
+URL:
+
+http://prometheus-operated.monitoring.svc.cluster.local:9090
+
+Click:
+
+Save & Test
+STEP 11 — Import Dashboard
+
+Go to
+
+Dashboards
+ → Import
+
+Enter ID:
+
+1860
+
+This is Node Exporter Dashboard.
+
+Select:
+
+Prometheus
+
+Click
+
+Import
+
+Now you will see:
+
+CPU Usage
+
+Memory Usage
+
+Disk Usage
+
+Network
+
+Pod metrics
+
+STEP 12 — Verify Metrics
+
+Run:
+
+kubectl top nodes
+
+and
+
+kubectl top pods
+
+Metrics will also appear in Grafana dashboards.
+
+
+
 
 
 
