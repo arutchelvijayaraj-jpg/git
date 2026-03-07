@@ -315,7 +315,12 @@ Metrics will also appear in Grafana dashboards.
 
 
 
-
+kubectl expose svc monitoring-kube-prometheus-prometheus \
+-n monitoring \
+--type=LoadBalancer \
+--name=prometheus-service \
+--port=9090 \
+--target-port=9090
 
 
 
